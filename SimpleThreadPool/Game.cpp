@@ -80,6 +80,32 @@ void Game::processEvents()
 				m_gridSize = 1000;
 				initGrid();
 			}
+
+			if (event.key.code == sf::Keyboard::W)
+			{
+				m_view.move(sf::Vector2f(0.0f, -1.0f));
+			}
+			if (event.key.code == sf::Keyboard::A)
+			{
+				m_view.move(sf::Vector2f(-1.0f, 0.0f));
+			}
+			if (event.key.code == sf::Keyboard::S)
+			{
+				m_view.move(sf::Vector2f(0.0f, 1.0f));
+			}
+			if (event.key.code == sf::Keyboard::D)
+			{
+				m_view.move(sf::Vector2f(1.0f, 0.0f));
+
+			}
+			if (event.key.code == sf::Keyboard::Z)
+			{
+				m_view.zoom(1.1);
+			}
+			if (event.key.code == sf::Keyboard::X)
+			{
+				m_view.zoom(0.9);
+			}
 		}
 		if (sf::Event::Closed == event.type) // window message
 		{
