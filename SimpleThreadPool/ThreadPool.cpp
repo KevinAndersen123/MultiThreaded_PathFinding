@@ -1,19 +1,58 @@
 #include "ThreadPool.h"
 
-ThreadPool::ThreadPool() {
-	int cores = std::thread::hardware_concurrency() - 1;
-	for (int i = 0; i < cores; i++)
+ThreadPool::ThreadPool() 
+{
+	int threads = 4;
+
+	for (int i = 0; i < threads; i++)
 	{
-		m_threads.push_back(std::thread());
-		// Need to add a function thats listens for 
-		// Tasks to be added to the queue
+		m_threadPool.push_back(std::thread(infiniteSpin, std::ref(*this)));
 	}
 }
 
-ThreadPool::~ThreadPool() {}
-
-
-void ThreadPool::addTask(std::function<void()> task) 
+ThreadPool::~ThreadPool() 
 {
-	m_tasks.push(task);
+	//use this flag in conditional flag
+	m_terminatePool = true; 
+	m_taskCondition.notify_all();
+	//join all threads
+	for (std::thread& every_thread : m_threadPool)
+	{
+		every_thread.join();
+	}
+
+	m_threadPool.clear();
+}
+
+
+void ThreadPool::addTask(std::function<void()> t_task)
+{
+	{
+		std::unique_lock<std::mutex> lock(m_taskMutex);
+		m_tasks.push(t_task);
+	}
+	m_taskCondition.notify_all();
+}
+
+void ThreadPool::infiniteSpin(ThreadPool& t_threadpool)
+{
+	while (true)
+	{
+		std::function<void()> task = std::function<void()>();
+		bool receivedTask = false;
+		{
+			std::unique_lock<std::mutex> lock(t_threadpool.m_taskMutex);
+			t_threadpool.m_taskCondition.wait(lock, [&] {return !t_threadpool.m_tasks.empty() || t_threadpool.m_terminatePool; });
+			if (!t_threadpool.m_terminatePool && !t_threadpool.m_tasks.empty())
+			{
+				task = t_threadpool.m_tasks.front();
+				t_threadpool.m_tasks.pop();
+				receivedTask = true;
+			}
+		}
+		if (receivedTask)
+		{
+			task();
+		}
+	}
 }

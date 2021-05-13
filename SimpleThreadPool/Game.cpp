@@ -10,11 +10,7 @@ Game::Game() :
 {
 	m_view.setCenter(sf::Vector2f(500.0f, 500.0f));
 	m_view.setSize(sf::Vector2f(1000.0f, 1000.0f));
-	initGrid();
-
-	m_tile.setSize(sf::Vector2f(19.0f, 19.0f));
-	m_tile.setOrigin(9.5f, 9.5f);
-	m_tile.setFillColor(sf::Color::Green);
+	m_map.setupTiles();
 }
 
 /// <summary>
@@ -64,21 +60,45 @@ void Game::processEvents()
 			if (event.key.code == sf::Keyboard::Escape)
 			{
 				m_window.close();
-			}
+			}			
 			if (event.key.code == sf::Keyboard::Num1)
 			{
-				m_gridSize = 30;
-				initGrid();
+				m_map.generateSmallMap();
+				m_player.spawnPlayer();
+				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_enemies.clear();
+
+				for (int i = 0; i < 5; i++)
+				{
+					m_enemies.push_back(new Enemy(m_map.m_grid[25][19 + i], 90.0f));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
+				}
 			}
 			if (event.key.code == sf::Keyboard::Num2)
 			{
-				m_gridSize = 100;
-				initGrid();
+				m_map.generateMediumMap();
+				m_player.spawnPlayer();
+				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_enemies.clear();
+
+				for (int i = 0; i < 50; i++)
+				{
+					m_enemies.push_back(new Enemy(m_map.m_grid[90][20 + i], 25.0f));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
+				}
 			}
 			if (event.key.code == sf::Keyboard::Num3)
 			{
-				m_gridSize = 1000;
-				initGrid();
+				m_map.generateLargeMap();
+				m_player.spawnPlayer();
+				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_enemies.clear();
+
+				for (int i = 0; i < 100; i++)
+				{
+					m_enemies.push_back(new Enemy(m_map.m_grid[900][500 + i], 2.0f));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
+				}
 			}
 
 			if (event.key.code == sf::Keyboard::W)
@@ -120,7 +140,7 @@ void Game::processEvents()
 /// <param name="t_deltaTime">time interval per frame</param>
 void Game::update(sf::Time t_deltaTime)
 {
-
+	m_map.update(t_deltaTime);
 }
 
 /// <summary>
@@ -130,29 +150,6 @@ void Game::render()
 {
 	m_window.setView(m_view);
 	m_window.clear();
-	for (int x = 0; x < m_gridSize; x++)
-	{
-		for (int y = 0; y < m_gridSize; y++)
-		{
-			m_tile.setPosition(m_tileArray[x][y].getPosition());
-			m_window.draw(m_tile);
-		}
-	}
+	m_map.render(m_window);
 	m_window.display();
-}
-
-void Game::initGrid()
-{
-	m_tileArray.clear();
-	for (int r = 0; r < m_gridSize; r++)
-	{
-		std::vector<Tile> tileR;
-		for (int c = 0; c < m_gridSize; c++)
-		{
-			Tile tile;
-			tile.setPosition(sf::Vector2f(10 + r * 20, 10 + c * 20));
-			tileR.push_back(tile);
-		}
-		m_tileArray.push_back(tileR);
-	}
 }
