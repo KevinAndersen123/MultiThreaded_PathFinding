@@ -11,6 +11,7 @@ public:
 	void render(sf::RenderWindow t_window);
 	sf::Vector2f getPos();
 	sf::Vector2f getPreviousPos();
+	std::vector<Tile*> m_path;		//Vector of path nodes that the enemy needs to visit to reacht the target.
 	Enemy();
 
 private:
@@ -22,6 +23,5 @@ private:
 	static float s_movementSpeed;		//The speed at which the enemy moves around each frame.
 	sf::CircleShape m_shape;		
 	int m_pathIndex{ -1 };				//The current index of the node in the path.
-	std::vector<Tile*> m_path;		//Vector of path nodes that the enemy needs to visit to reacht the target.
 };
 

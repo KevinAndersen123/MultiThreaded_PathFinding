@@ -6,11 +6,11 @@
 /// constructor for game setup window and initial state
 /// </summary>
 Game::Game() :
-	m_window{ sf::VideoMode{ 1000, 1000, 32 }, "Lab 6" }
+	m_window{ sf::VideoMode{ 1500, 1000, 32 }, "Threadpool Pathfinding" }
 {
-	m_view.setCenter(sf::Vector2f(500.0f, 500.0f));
-	m_view.setSize(sf::Vector2f(1000.0f, 1000.0f));
-	m_map.setupTiles();
+	m_view.setCenter(sf::Vector2f(750.0f, 500.0f));
+	m_view.setSize(sf::Vector2f(1500.0f, 1000.0f));
+	m_map.generate30Map();
 }
 
 /// <summary>
@@ -53,84 +53,80 @@ void Game::processEvents()
 	sf::Event event;
 	while (m_window.pollEvent(event))
 	{
-
 		sf::Vector2f m_mousePos = m_window.mapPixelToCoords(sf::Mouse::getPosition(m_window));
 		if (event.type == sf::Event::KeyPressed)
 		{
 			if (event.key.code == sf::Keyboard::Escape)
 			{
 				m_window.close();
-			}			
+			}
 			if (event.key.code == sf::Keyboard::Num1)
 			{
-				m_map.generateSmallMap();
-				m_player.spawnPlayer();
-				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_map.generate30Map();
+				/*m_player.spawnPlayer();
 				m_enemies.clear();
 
 				for (int i = 0; i < 5; i++)
 				{
 					m_enemies.push_back(new Enemy(m_map.m_grid[25][19 + i], 90.0f));
-					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
-				}
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i].m_path));
+				}*/
 			}
 			if (event.key.code == sf::Keyboard::Num2)
 			{
-				m_map.generateMediumMap();
-				m_player.spawnPlayer();
-				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_map.generate100Map();
+				/*m_player.spawnPlayer();
 				m_enemies.clear();
 
 				for (int i = 0; i < 50; i++)
 				{
 					m_enemies.push_back(new Enemy(m_map.m_grid[90][20 + i], 25.0f));
-					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
-				}
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i].m_path));
+				}*/
 			}
 			if (event.key.code == sf::Keyboard::Num3)
 			{
-				m_map.generateLargeMap();
-				m_player.spawnPlayer();
-				m_map.setHeuristicCost(m_player.getOccupiedTile());
+				m_map.generate1000Map();
+				/*m_player.spawnPlayer();
 				m_enemies.clear();
 
 				for (int i = 0; i < 100; i++)
 				{
 					m_enemies.push_back(new Enemy(m_map.m_grid[900][500 + i], 2.0f));
-					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]));
-				}
-			}
-
-			if (event.key.code == sf::Keyboard::W)
-			{
-				m_view.move(sf::Vector2f(0.0f, -1.0f));
-			}
-			if (event.key.code == sf::Keyboard::A)
-			{
-				m_view.move(sf::Vector2f(-1.0f, 0.0f));
-			}
-			if (event.key.code == sf::Keyboard::S)
-			{
-				m_view.move(sf::Vector2f(0.0f, 1.0f));
-			}
-			if (event.key.code == sf::Keyboard::D)
-			{
-				m_view.move(sf::Vector2f(1.0f, 0.0f));
-
-			}
-			if (event.key.code == sf::Keyboard::Z)
-			{
-				m_view.zoom(1.1);
-			}
-			if (event.key.code == sf::Keyboard::X)
-			{
-				m_view.zoom(0.9);
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i].m_path));
+				*/
 			}
 		}
-		if (sf::Event::Closed == event.type) // window message
+
+		if (event.key.code == sf::Keyboard::W)
 		{
-			m_window.close();
+			m_view.move(sf::Vector2f(0.0f, -5.0f));
 		}
+		if (event.key.code == sf::Keyboard::A)
+		{
+			m_view.move(sf::Vector2f(-5.0f, 0.0f));
+		}
+		if (event.key.code == sf::Keyboard::S)
+		{
+			m_view.move(sf::Vector2f(0.0f, 5.0f));
+		}
+		if (event.key.code == sf::Keyboard::D)
+		{
+			m_view.move(sf::Vector2f(5.0f, 0.0f));
+
+		}
+		if (event.key.code == sf::Keyboard::Z)
+		{
+			m_view.zoom(1.1);
+		}
+		if (event.key.code == sf::Keyboard::X)
+		{
+			m_view.zoom(0.9);
+		}
+	}
+	if (sf::Event::Closed == event.type) // window message
+	{
+		m_window.close();
 	}
 }
 
@@ -140,7 +136,6 @@ void Game::processEvents()
 /// <param name="t_deltaTime">time interval per frame</param>
 void Game::update(sf::Time t_deltaTime)
 {
-	m_map.update(t_deltaTime);
 }
 
 /// <summary>

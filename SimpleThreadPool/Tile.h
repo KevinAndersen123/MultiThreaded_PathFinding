@@ -56,7 +56,7 @@ public:
 	/// Setter fucntion to set if the tile is walkable or not
 	/// </summary>
 	/// <param name="t_isWalkable">is it walkable</param>
-	void setIsWalkable(bool t_isWalkable) { m_isWalkable = t_isWalkable; }
+	void setIsWalkable(bool t_isWalkable);
 
 	/// <summary>
 	/// Getter method for the m_isWalkable which provides information
@@ -82,6 +82,12 @@ public:
 	/// </summary>
 	/// <returns>The predicted path cost</returns>
 	int getHeuristicCost();
+
+	/// <summary>
+	/// set the cost multiplier of the weight of the arc
+	/// </summary>
+	/// <param name="t_val">new value for the weight multiplier</param>
+	void setCostMulti(float t_val) { m_costMultiplier = t_val; }
 
 	/// <summary>
 	///	Getter method for the cost multiplier that is applied to basic weight of the arc.
@@ -115,6 +121,7 @@ public:
 	/// <returns>The list of arcs that starts at this tile/returns>
 	std::list<MapArc> const& arcList() const;
 
+	void clearArcs() { m_arcList.clear(); }
 private:
 
 	bool m_isWalkable;		//Bool for if the a moving world object can walk through it.

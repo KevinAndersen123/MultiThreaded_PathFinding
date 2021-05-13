@@ -39,6 +39,11 @@ void Tile::setHeuristicCost(int t_newHeuristic)
 	m_heuristicCost = t_newHeuristic;
 }
 
+void Tile::setIsWalkable(bool t_isWalkable)
+{
+	m_isWalkable = t_isWalkable;
+}
+
 int Tile::getPathCost()
 {
 	return m_pathCost;

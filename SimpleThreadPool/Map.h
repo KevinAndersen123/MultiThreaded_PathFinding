@@ -10,6 +10,8 @@
 #include <stack>
 #include <functional>
 #include "MathLib.h"
+#include <mutex>
+#include "Enemy.h"
 
 class Map
 {
@@ -17,12 +19,10 @@ public:
 
 	Map();
 	
-	void setupTiles();
-	void update(sf::Time t_dt);
 	void processEvents(sf::Event& t_event);
-	void generateSmallMap();
-	void generateMediumMap();
-	void generateLargeMap();
+	void generate30Map();
+	void generate100Map();
+	void generate1000Map();
 
 	void render(sf::RenderWindow& t_window);
 
@@ -41,30 +41,24 @@ public:
 	/// </summary>
 	/// <param name="t_start">The tile from which the A* will start searching</param>
 	/// <param name="t_dest">The tile which the A* is looking for</param>
-	/// <param name="t_path">The resulting path that has to be taken to reach the destination</param>
 	void aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path);
 
-	/// <summary>
-	/// Getter method for a pointer to the tile that is containes the target position.
-	/// </summary>
-	/// <param name="t_pos">Target position based on which we want to get tile</param>
-	/// <returns>Pointer to the map tile that contains the target position</returns>
-	Tile* getTileBasedOnPos(sf::Vector2f t_pos);
-
-	//The size of a tile.
-	const int m_TILE_SIZE{ 32 };
-
-	//The size of the tile diagonaly.
-	const int m_TILE_DIAGONAL_SIZE{ 45 };
-	const static int m_gridSize = 30;
-
+	std::vector<std::vector<Tile*>> m_grid;
 private:
+	int m_width = 0;
+	int m_height = 0;
+	float m_tileSize =0;
+	float m_diagonalTileSize = 0;
+	sf::Sprite m_gridSprite;
+	sf::RectangleShape m_tile;
+	sf::RenderTexture m_texture;
+
+	sf::Vector2f m_offset;
 
 	//Vector used to find the edges of a collider.
 	std::vector<sf::Vector2i> m_edgeMulti;
-
-	Tile m_grid[m_gridSize][m_gridSize];	//Map of map tile objects.
-
+	void createMap(float t_tileSize, float t_outline);
+	void genTexture();
 
 	/// <summary>
 	/// Getter method for the index in the map based on the passed in position.
@@ -72,14 +66,6 @@ private:
 	/// <param name="m_position">The position that we want to convert into map index</param>
 	/// <returns>The index of the map as a vector</returns>
 	sf::Vector2i getMapIndex(sf::Vector2f m_position);
-
-	/// <summary>
-	/// Getter method to get all the tiles that are within the past in range.
-	/// </summary>
-	/// <param name="t_pos">The position which we want to get tiles around</param>
-	/// <param name="t_rangeRadius">The radius of the in which we want to get all the tiles</param>
-	/// <returns>Vector of MapTile pointers that are within the range radius</returns>
-	std::vector<Tile*>getTilesInRange(sf::Vector2f t_pos, float t_rangeRadius);
 
 	/// <summary>
 	/// Adds the arc between two tiles. If the arc would go out of map bounds it is ignored.
@@ -123,4 +109,6 @@ private:
 	/// Sets the previous pointer for each tile to nullptr.
 	/// </summary>
 	void clearPrevious();
+
+	void clearGrid();
 };
