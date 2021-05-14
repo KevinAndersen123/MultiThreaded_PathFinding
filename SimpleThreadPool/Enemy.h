@@ -8,20 +8,28 @@ class Enemy
 {
 public:
 	void update(sf::Time t_dt);
-	void render(sf::RenderWindow t_window);
+	void render(sf::RenderWindow& t_window, sf::RenderTexture& t_texture);
 	sf::Vector2f getPos();
 	sf::Vector2f getPreviousPos();
 	std::vector<Tile*> m_path;		//Vector of path nodes that the enemy needs to visit to reacht the target.
-	Enemy();
-
+	Enemy(Tile* t_spawnTile, float t_size, Tile* t_targetTile);
+	Tile* getCurrentTile();
+	std::vector<Tile*> getPath() { return m_path; }
+	static void setMapPointer(Map* t_map);
 private:
+	void setVelocity();
+	void updateMovement(sf::Time t_dt);
+	void setPath();
+	sf::Vector2f m_velocity;
+	sf::Vector2f m_targetPos;
+	Tile* m_targetTile;
 	static Map* s_map;				//Pointer to the map 
 	bool m_isActive;				//Bool for if the world is active or not.
-	bool m_isWalkable;
+	bool m_isWalkable = false;
 	sf::Vector2f m_pos;				//The current position that the object is in.
 	sf::Vector2f m_previousPos;		//The previous position of the object.
 	static float s_movementSpeed;		//The speed at which the enemy moves around each frame.
-	sf::CircleShape m_shape;		
+	sf::RectangleShape m_shape;		
 	int m_pathIndex{ -1 };				//The current index of the node in the path.
 };
 

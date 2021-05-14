@@ -5,10 +5,10 @@ Map::Map()
 	m_texture.create(3000, 3000);
 	m_tile.setPosition(sf::Vector2f(0.0f, 0.0f));
 
-	m_edgeMulti.push_back(sf::Vector2i(-1, 0));
-	m_edgeMulti.push_back(sf::Vector2i(0, -1));
-	m_edgeMulti.push_back(sf::Vector2i(1, 0));
-	m_edgeMulti.push_back(sf::Vector2i(0, 1));
+	m_edgeMulti.push_back(sf::Vector2i(-1, -1));
+	m_edgeMulti.push_back(sf::Vector2i(1, -1));
+	m_edgeMulti.push_back(sf::Vector2i(1, 1));
+	m_edgeMulti.push_back(sf::Vector2i(-1, 1));
 
 }
 
@@ -34,6 +34,7 @@ void Map::createMap(float t_tileSize, float t_outline)
 		{
 			col.push_back(new Tile());
 			col[y]->setPosition(sf::Vector2f(offset / 2 + (offset * x), offset / 2 + (offset * y)));
+			col[y]->setIsWalkable(true);
 		}
 		m_grid.push_back(col);
 	}
@@ -285,7 +286,7 @@ void Map::setUpArcs()
 				int n_col = col + ((direction / 3) - 1);	//Neighbor column
 
 				// Check the bounds.
-				if (n_row >= 0 && n_row < m_height && n_col >= 0 && n_col < m_height)
+				if (n_row >= 0 && n_row < m_width && n_col >= 0 && n_col < m_height)
 				{
 					//Check if the target node is in stright line with the start node.
 					if (n_row == row || n_col == col)
@@ -298,7 +299,6 @@ void Map::setUpArcs()
 
 						addArc(sf::Vector2i(col, row), sf::Vector2i(n_col, n_row), cost1 + cost2);
 					}
-
 					//Otherwise the target node is diagonal to the start node.
 					else
 					{
@@ -465,6 +465,13 @@ void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
 
 	clearMarks();
 	clearPrevious();
+}
+
+Tile* Map::getTileBasedOnPos(sf::Vector2f t_pos)
+{
+	sf::Vector2i mapIndex = getMapIndex(t_pos);
+
+	return m_grid[mapIndex.y][mapIndex.x];
 }
 
 

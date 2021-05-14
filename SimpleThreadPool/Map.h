@@ -23,7 +23,7 @@ public:
 	void generate30Map();
 	void generate100Map();
 	void generate1000Map();
-
+	Tile* getTileBasedOnPos(sf::Vector2f t_pos);
 	void render(sf::RenderWindow& t_window);
 
 	/// <summary>
@@ -45,8 +45,8 @@ public:
 
 	std::vector<std::vector<Tile*>> m_grid;
 private:
-	int m_width = 0;
-	int m_height = 0;
+	int m_width = 30;
+	int m_height = 30;
 	float m_tileSize =0;
 	float m_diagonalTileSize = 0;
 	sf::Sprite m_gridSprite;

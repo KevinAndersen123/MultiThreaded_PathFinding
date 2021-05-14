@@ -42,6 +42,14 @@ void Tile::setHeuristicCost(int t_newHeuristic)
 void Tile::setIsWalkable(bool t_isWalkable)
 {
 	m_isWalkable = t_isWalkable;
+	if (!t_isWalkable)
+	{
+		m_costMultiplier = 10;
+	}
+	else
+	{
+		m_costMultiplier = 1;
+	}
 }
 
 int Tile::getPathCost()
