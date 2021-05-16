@@ -9,7 +9,7 @@ class Player
 {
 public:
 	Player();
-	void spawnPlayer(float t_size, float t_outline, Tile* t_spawnTile);
+	void spawnPlayer(float t_size, float t_outline, Tile& t_spawnTile);
 	Tile* getOccupiedTile();
 	sf::RectangleShape m_shape;
 	static void setMapPointer(Map* t_map);

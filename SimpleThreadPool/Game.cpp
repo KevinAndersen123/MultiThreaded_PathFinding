@@ -65,38 +65,40 @@ void Game::processEvents()
 			if (event.key.code == sf::Keyboard::Num1)
 			{
 				m_map.generate30Map();
-				m_player.spawnPlayer(90.0f,5.0f, m_map.m_grid[0][0]);
+				m_player.spawnPlayer(90.0f,5.0f, *m_map.m_grid[0][0]);
+				m_map.setH(m_player.getOccupiedTile());
 				m_enemies.clear();
-
 				for (int i = 0; i < 5; i++)
 				{
-					m_enemies.push_back(new Enemy(m_map.m_grid[25][22 + i], 90.0f, m_player.getOccupiedTile()));
-					//m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]->m_path));
+					m_enemies.push_back(new Enemy(m_map.m_grid[25][22 + i], 90.0f, m_player.getOccupiedTile(),5.0f,i));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], &m_map));
 				}
 			}
 			if (event.key.code == sf::Keyboard::Num2)
 			{
 				m_map.generate100Map();
-				m_player.spawnPlayer(25.0f, 2.0f, m_map.m_grid[0][0]);
+				m_player.spawnPlayer(25.0f, 2.0f, *m_map.m_grid[0][0]);
+				m_map.setH(m_player.getOccupiedTile());
 				m_enemies.clear();
 
 				for (int i = 0; i < 50; i++)
 				{
-					m_enemies.push_back(new Enemy(m_map.m_grid[84][20 + i], 25.0f, m_player.getOccupiedTile()));
-					//m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i].m_path));
+					m_enemies.push_back(new Enemy(m_map.m_grid[85][0 + i], 25.0f, m_player.getOccupiedTile(),2.0f,i));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], &m_map));
 				}
 			}
 			if (event.key.code == sf::Keyboard::Num3)
-			{
+			{ 
 				m_map.generate1000Map();
-				m_player.spawnPlayer(2.0f, 0.5f, m_map.m_grid[0][0]);
+				m_player.spawnPlayer(2.0f, 0.5f, *m_map.m_grid[0][0]);
+				m_map.setH(m_player.getOccupiedTile());
 				m_enemies.clear();
 
-				//for (int i = 0; i < 100; i++)
-				//{
-				//	m_enemies.push_back(new Enemy(m_map.m_grid[500][500 + i], 2.0f, m_player.getOccupiedTile()));
-				//	//m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i]->m_path));
-				//}
+				for (int i = 0; i < 500; i++)
+				{
+					//m_enemies.push_back(new Enemy(m_map.m_grid[100][400 + i], 2.0f, m_player.getOccupiedTile(),0.5f,i));
+					//m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], m_map));
+				}
 			}
 		}
 
@@ -154,11 +156,8 @@ void Game::render()
 	m_map.render(m_window);
 	for (int i = 0; i < m_enemies.size(); i++)
 	{
-		m_enemies[i]->render(m_window,m_objectTexture);
+		m_enemies[i]->render(m_window);
 	}
 	m_player.render(m_window);
-	m_objectTexture.display();
-	m_objectsSprite.setTexture(m_objectTexture.getTexture());
-	m_window.draw(m_objectsSprite);
 	m_window.display();
 }

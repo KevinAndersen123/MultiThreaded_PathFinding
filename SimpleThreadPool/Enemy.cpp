@@ -4,26 +4,30 @@
 Map* Enemy::s_map;
 float Enemy::s_movementSpeed = 5.0f;
 
-Enemy::Enemy(Tile* t_spawnTile, float t_size,Tile* t_targetTile)
+Enemy::Enemy(Tile* t_spawnTile, float t_size, Tile* t_targetTile,float t_outline,int t_id)
 {
-	
 	m_pos = t_spawnTile->getPosition();
 	m_previousPos = m_pos;
 	m_shape.setFillColor(sf::Color::Red);
 	m_shape.setPosition(m_pos);
-	m_shape.setSize(sf::Vector2f(t_size-5, t_size-5));
+	m_shape.setSize(sf::Vector2f(t_size - 5, t_size - 5));
 	m_shape.setOrigin(t_size / 2, t_size / 2);
+	m_shape.setOutlineThickness(t_outline);
 	m_shape.setOutlineColor(sf::Color::Black);
-	m_shape.setPosition(t_spawnTile->getPosition());
 	m_targetTile = t_targetTile;
-	setPath();
-
+	m_id = t_id;
 }
 
 void Enemy::update(sf::Time t_dt)
 {
 	m_previousPos = m_pos;
+	if (m_isAbleToMove && !m_once)
+	{
+		setVelocity();
+		m_once = true;
+	}
 	updateMovement(t_dt);
+
 }
 
 Tile* Enemy::getCurrentTile()
@@ -31,7 +35,7 @@ Tile* Enemy::getCurrentTile()
 	return s_map->getTileBasedOnPos(m_pos);
 }
 
-void Enemy::render(sf::RenderWindow& t_window, sf::RenderTexture& t_texture)
+void Enemy::render(sf::RenderWindow& t_window)
 {
 	t_window.draw(m_shape);
 	std::vector<sf::Vertex> vertices;
@@ -65,13 +69,13 @@ void Enemy::setMapPointer(Map* t_map)
 
 void Enemy::updateMovement(sf::Time t_dt)
 {
-	if (Thor::length(m_targetPos - m_pos) <= s_movementSpeed)
+	float val = Thor::length(m_targetPos - m_pos);
+	if (val <= s_movementSpeed)
 	{
 		m_pos = m_targetPos;
 		m_shape.setPosition(m_pos);
 		setVelocity();
 	}
-
 	else
 	{
 		m_pos += m_velocity;
@@ -79,13 +83,11 @@ void Enemy::updateMovement(sf::Time t_dt)
 	}
 }
 
-void Enemy::setPath()
+int Enemy::getID()
 {
-	m_pathIndex = -1;
-
-	s_map->aStar(s_map->getTileBasedOnPos(m_pos), s_map->getTileBasedOnPos(m_targetTile->getPosition()), m_path);
-	setVelocity();
+	return m_id;
 }
+
 
 void Enemy::setVelocity()
 {

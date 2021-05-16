@@ -218,14 +218,13 @@ bool Map::checkIsWalkable(sf::Vector2f t_pos, float t_rangeRadius)
 			}
 		}
 	}
-
 	return true;
 }
 
 
 sf::Vector2i Map::getMapIndex(sf::Vector2f m_position)
 {
-	sf::Vector2i mapIndex = static_cast<sf::Vector2i>(m_position / static_cast<float>(m_tileSize));
+	sf::Vector2i mapIndex = static_cast<sf::Vector2i>(m_position / m_tileSize);
 
 	if (mapIndex.x < 0)
 	{
@@ -344,24 +343,24 @@ MapArc* Map::getArc(Tile* from, Tile* to)
 	return arc;
 }
 
-void Map::clearMarks()
+void Map::clearMarks(int t_enemyID)
 {
 	for (int row = 0; row < m_width; row++)
 	{
 		for (int col = 0; col < m_height; col++)
 		{
-			m_grid[row][col]->setMarked(false);
+			m_grid[row][col]->setMarked(false, t_enemyID);
 		}
 	}
 }
 
-void Map::clearPrevious()
+void Map::clearPrevious(int t_enemyID)
 {
 	for (int row = 0; row < m_width; row++)
 	{
 		for (int col = 0; col < m_height; col++)
 		{
-			m_grid[row][col]->setPrevious(nullptr);
+			m_grid[row][col]->setPrevious(nullptr, t_enemyID);
 		}
 	}
 }
@@ -379,10 +378,21 @@ void Map::clearGrid()
 	m_grid.clear();
 }
 
-void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
+void Map::setH(Tile* t_targetTile)
 {
-	//Clear the passed in path as we do not want to add in more tile to the path.
-	t_path.clear();
+	for (int row = 0; row < m_width; row++)
+	{
+		for (int col = 0; col < m_height; col++)
+		{
+			//Calculates the heuristic for the straight line distance to the target.
+			m_grid[row][col]->setHeuristicCost(abs(Thor::length(m_grid[row][col]->getPosition() - t_targetTile->getPosition())));
+		}
+	}
+}
+
+void Map::aStar(Tile* t_start, Tile* t_dest, Enemy*t_enemy, Map*t_map)
+{
+	int id = t_enemy->getID();
 
 	//Safety check in case for if we are trying to path to something that has
 	//died or in the case we have died.
@@ -390,27 +400,16 @@ void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
 	{
 		return;
 	}
+	TileSearchComperor compare = TileSearchComperor(id);
 
 	//Priority queue used to reorgenise the tiles after the queue is popped so that
 	//the target with the lowest path cost is the one that will be proccessed next.
-	std::priority_queue<Tile*, std::vector<Tile*>, TileSearchComperor> pq;
-
-	for (int row = 0; row < m_width; row++)
-	{
-		for (int col = 0; col < m_height; col++)
-		{
-			//Sets the current path cost to the maximum possible value.
-			m_grid[row][col]->setPathCost(std::numeric_limits<int>::max());
-
-			//Calculates the heuristic for the straight line distance to the target.
-			m_grid[row][col]->setHeuristicCost(abs(Thor::length(m_grid[row][col]->getPosition() - t_dest->getPosition())));
-		}
-	}
+	std::priority_queue<Tile*, std::vector<Tile*>, TileSearchComperor> pq(compare);
 
 	//Add in the starting node to the queue.
-	t_start->setPathCost(0);
+	t_start->setPathCost(0,id);
 	pq.push(t_start);
-	t_start->setMarked(true);
+	t_start->setMarked(true,id);
 
 	while (!pq.empty() && pq.top() != t_dest)
 	{
@@ -419,7 +418,7 @@ void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
 
 		for (; iter != endIter; iter++)
 		{
-			if ((*iter).node() == pq.top()->previous())
+			if ((*iter).node() == pq.top()->previous(id))
 			{
 				continue;
 			}
@@ -431,19 +430,19 @@ void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
 			//we want to walk to.
 			if (arc.node()->getIsWalkable() || arc.node() == t_dest)
 			{
-				int childCost = arc.weight() + pq.top()->getPathCost();
+				int childCost = arc.weight() + pq.top()->getPathCost(id);
 
-				if (childCost < arc.node()->getPathCost())
+				if (childCost < arc.node()->getPathCost(id))
 				{
-					arc.node()->setPathCost(childCost);
-					arc.node()->setPrevious(pq.top());
+					arc.node()->setPathCost(childCost,id);
+					arc.node()->setPrevious(pq.top(),id);
 
 				}
 
-				if (arc.node()->marked() == false)
+				if (arc.node()->marked(id) == false)
 				{
 					pq.push(arc.node());
-					arc.node()->setMarked(true);
+					arc.node()->setMarked(true,id);
 				}
 			}
 		}
@@ -452,26 +451,28 @@ void Map::aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path)
 	}
 
 	Tile* currentNode = t_dest;
+	std::vector<Tile*> path;
 
 	//We add the each of the tiles from destination to start to create the path.
-	while (currentNode->previous() != nullptr)
+	while (currentNode->previous(id) != nullptr)
 	{
-		t_path.push_back(currentNode);
-		currentNode = currentNode->previous();
+		path.push_back(currentNode);
+		currentNode = currentNode->previous(id);
 	}
 
 	//We reverse the path so it begins at start tile.
-	std::reverse(t_path.begin(), t_path.end());
-
-	clearMarks();
-	clearPrevious();
+	std::reverse(path.begin(), path.end());
+	t_enemy->m_path = path;
+	t_enemy->enableMovement(true);
+	t_map->clearPrevious(id);
+	t_map->clearMarks(id);
 }
 
 Tile* Map::getTileBasedOnPos(sf::Vector2f t_pos)
 {
 	sf::Vector2i mapIndex = getMapIndex(t_pos);
 
-	return m_grid[mapIndex.y][mapIndex.x];
+	return m_grid[mapIndex.x][mapIndex.y];
 }
 
 

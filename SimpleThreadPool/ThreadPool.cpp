@@ -6,16 +6,14 @@ ThreadPool::ThreadPool()
 
 	for (int i = 0; i < threads; i++)
 	{
-		m_threadPool.push_back(std::thread(infiniteSpin, std::ref(*this)));
+		m_threadPool.push_back(std::thread(TaskWait, std::ref(*this)));
 	}
 }
 
 ThreadPool::~ThreadPool() 
 {
-	//use this flag in conditional flag
 	m_terminatePool = true; 
 	m_taskCondition.notify_all();
-	//join all threads
 	for (std::thread& every_thread : m_threadPool)
 	{
 		every_thread.join();
@@ -34,7 +32,7 @@ void ThreadPool::addTask(std::function<void()> t_task)
 	m_taskCondition.notify_all();
 }
 
-void ThreadPool::infiniteSpin(ThreadPool& t_threadpool)
+void ThreadPool::TaskWait(ThreadPool& t_threadpool)
 {
 	while (true)
 	{

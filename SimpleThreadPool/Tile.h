@@ -1,13 +1,14 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <list>
+#include <mutex>
 class MapArc;
 
 class Tile
 {
 public:
 
-	Tile(Tile* previous = 0);
+	Tile();
 
 	/// <summary>
 	/// Sets the position of the tile sprite to the passed in position.
@@ -19,13 +20,13 @@ public:
 	/// Sets if the tile has been marked already or not.
 	/// </summary>
 	/// <param name="mark">Bool for if the tile has been marked already</param>
-	void setMarked(bool mark);
+	void setMarked(bool mark, int t_enemyID);
 
 	/// <summary>
 	/// Sets the pointer to the previous tile that this tile is connected to.
 	/// </summary>
 	/// <param name="previous">The pointer to the previous map tile</param>
-	void setPrevious(Tile* previous);
+	void setPrevious(Tile* previous, int t_enemyID);
 
 	/// <summary>
 	/// Adds the to the list of arc that start at this tile.
@@ -44,13 +45,13 @@ public:
 	/// Sets the new path cost for this tile that has been calcukulated by A*.
 	/// </summary>
 	/// <param name="t_newCost">The new path cost</param>
-	void setPathCost(int t_newCost);
+	void setPathCost(float t_newCost, int t_enemyID);
 
 	/// <summary>
 	/// The estimated straight line path cost from this tile to the target tile.
 	/// </summary>
 	/// <param name="t_newHeuristic">The estimated path cost</param>
-	void setHeuristicCost(int t_newHeuristic);
+	void setHeuristicCost(float t_newHeuristic);
 
 	/// <summary>
 	/// Setter fucntion to set if the tile is walkable or not
@@ -69,19 +70,19 @@ public:
 	///	Getter method for the bool if the tile has been marked already.
 	/// </summary>
 	/// <returns>Bool for if the tile has been marked</returns>
-	bool marked() const;
+	bool marked(int t_enemyID);
 
 	/// <summary>
 	///	Getter method for the path cost from this map tile.
 	/// </summary>
 	/// <returns>The path cost</returns>
-	int getPathCost();
+	float getPathCost(int t_enemyID);
 
 	/// <summary>
 	///	Getter method for the predicted path cost from this map tile.
 	/// </summary>
 	/// <returns>The predicted path cost</returns>
-	int getHeuristicCost();
+	float getHeuristicCost();
 
 	/// <summary>
 	/// set the cost multiplier of the weight of the arc
@@ -99,7 +100,7 @@ public:
 	///	Getter method for the pointer to the previous map tile.
 	/// </summary>
 	/// <returns>pointer to the previous map tile/returns>
-	Tile* previous() const;
+	Tile* previous(int t_enemyID);
 
 	/// <summary>
 	///	Getter method for arc that points to the passed in tile.
@@ -122,33 +123,34 @@ public:
 	std::list<MapArc> const& arcList() const;
 
 	void clearArcs() { m_arcList.clear(); }
+
 private:
+	std::mutex m_mutex;
+	std::map<int, Tile*> m_previousTiles;
+	std::map<int, float> m_pathCosts;
+	std::map<int, bool> m_isMarked;
 
 	bool m_isWalkable;		//Bool for if the a moving world object can walk through it.
 	sf::RectangleShape m_tileShape; //rectangle used to show what tiles are walkable or not;
 
 	sf::Vector2f m_position;			//The position of the tile in the world.
 	float m_costMultiplier = 1;			//The multiplier that is applied to thebasic weight of the arc.
-	int m_pathCost;						//The cost of the path from this tile.
-	int m_heuristicCost;				//The predicted cost from this tile.
+	float m_heuristicCost{ 0 };				//The predicted cost from this tile.
 
 	//List of arcs the the map tile has.
 	std::list<MapArc> m_arcList;
 
-	//Bool for if the map tile has already been marked.
-	bool m_marked = false;
-
-	//Pointer to the previous map tile.
-	Tile* m_previous;
 };
 
 
 class TileSearchComperor
 {
 public:
+	TileSearchComperor(int t_id) : m_id(t_id) {};
 
+	int m_id;
 	bool operator()(Tile* n1, Tile* n2)
 	{
-		return n1->getPathCost() + n1->getHeuristicCost() > n2->getPathCost() + n2->getHeuristicCost();
+		return n1->getPathCost(m_id) + n1->getHeuristicCost() > n2->getPathCost(m_id) + n2->getHeuristicCost();
 	}
 };

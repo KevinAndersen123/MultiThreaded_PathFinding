@@ -41,13 +41,25 @@ public:
 	/// </summary>
 	/// <param name="t_start">The tile from which the A* will start searching</param>
 	/// <param name="t_dest">The tile which the A* is looking for</param>
-	void aStar(Tile* t_start, Tile* t_dest, std::vector<Tile*>& t_path);
+	static void aStar(Tile* t_start, Tile* t_dest, Enemy* t_enemy, Map *t_map);
 
 	std::vector<std::vector<Tile*>> m_grid;
+	void setH(Tile* t_targetTile);
+
+	/// <summary>
+	/// Sets the marked bool for each tile to false.
+	/// </summary>
+	void clearMarks(int t_enemyID);
+
+	/// <summary>
+	/// Sets the previous pointer for each tile to nullptr.
+	/// </summary>
+	void clearPrevious(int t_enemyID);
 private:
 	int m_width = 30;
 	int m_height = 30;
 	float m_tileSize =0;
+	float m_tileOutlineSize = 0;
 	float m_diagonalTileSize = 0;
 	sf::Sprite m_gridSprite;
 	sf::RectangleShape m_tile;
@@ -100,15 +112,6 @@ private:
 	/// <returns>Pointer to the map arc between the two tiles</returns>
 	MapArc* getArc(Tile* from, Tile* to);
 
-	/// <summary>
-	/// Sets the marked bool for each tile to false.
-	/// </summary>
-	void clearMarks();
-
-	/// <summary>
-	/// Sets the previous pointer for each tile to nullptr.
-	/// </summary>
-	void clearPrevious();
 
 	void clearGrid();
 };

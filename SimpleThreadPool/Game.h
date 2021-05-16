@@ -11,6 +11,7 @@ public:
 	void run();
 
 	Map m_map;
+
 private:
 	void processEvents();
 	void update(sf::Time t_deltaTime);

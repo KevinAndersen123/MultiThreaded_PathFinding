@@ -21,7 +21,7 @@ private:
 	std::condition_variable m_taskCondition;
 
 	bool m_terminatePool{ false };
-	static void infiniteSpin(ThreadPool& t_threadpool);
+	static void TaskWait(ThreadPool& t_threadpool);
 };
 #endif // !THREAD_POOL_H
 

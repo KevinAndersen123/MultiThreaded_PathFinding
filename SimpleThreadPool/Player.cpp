@@ -8,15 +8,15 @@ Player::Player()
 
 }
 
-void Player::spawnPlayer(float t_size, float t_outline, Tile* t_spawnTile)
+void Player::spawnPlayer(float t_size, float t_outline, Tile& t_spawnTile)
 {
     m_shape.setSize(sf::Vector2f(t_size, t_size));
     m_shape.setOrigin(t_size / 2, t_size / 2);
     m_shape.setOutlineThickness(t_outline);
     m_shape.setOutlineColor(sf::Color::Black);
     m_shape.setFillColor(sf::Color::Green);
-    m_shape.setPosition(t_spawnTile->getPosition());
-    t_spawnTile->setIsWalkable(false);
+    m_shape.setPosition(t_spawnTile.getPosition());
+    t_spawnTile.setIsWalkable(false);
 }
 
 Tile* Player::getOccupiedTile()
