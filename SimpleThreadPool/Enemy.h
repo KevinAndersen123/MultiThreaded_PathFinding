@@ -7,16 +7,58 @@ class Tile;
 class Enemy
 {
 public:
-	void update(sf::Time t_dt);
-	void render(sf::RenderWindow& t_window);
-	sf::Vector2f getPos();
-	sf::Vector2f getPreviousPos();
+	/// <summary>
+	/// Constructor for the Enemy object
+	/// Sets the start pos,the target tile, the size of the enemy and its outline, and assigns its id
+	/// </summary>
+	/// <param name="t_spawnTile">Starting tile</param>
+	/// <param name="t_size">Size of the rectangle shape</param>
+	/// <param name="t_targetTile">Target tile</param>
+	/// <param name="t_outline">outline size</param>
+	/// <param name="t_id">Id of the enemy</param>
+	Enemy(Tile* t_spawnTile, float t_size, Tile* t_targetTile, float t_outline, int t_id);
+
+	//checks if able to move the enemy and if so, update its movement
+	void update(sf::Time t_dt); 
+
+	//render the sf::rectangle of the enemy
+	void render(sf::RenderWindow& t_window); 
+
+	/// <summary>
+	/// Getter method for the enemies position
+	/// </summary>
+	/// <returns>vector of the enemies current position</returns>
+	sf::Vector2f getPos(); 
+
+	/// <summary>
+	/// Getter method for the prevoius pos of the enemy
+	/// </summary>
+	/// <returns></returns>
+	sf::Vector2f getPreviousPos(); 
+
+
 	std::vector<Tile*> m_path;		//Vector of path nodes that the enemy needs to visit to reacht the target.
-	Enemy(Tile* t_spawnTile, float t_size, Tile* t_targetTile, float t_outline,int t_id);
+
+	/// <summary>
+	/// Gets the current tile of the Enemy
+	/// </summary>
+	/// <returns>Tile the tile the enemy is on</returns>
 	Tile* getCurrentTile();
-	std::vector<Tile*> getPath() { return m_path; }
+
+	/// <summary>
+	/// Sets the map pointer
+	/// </summary>
+	/// <param name="t_map"></param>
 	static void setMapPointer(Map* t_map);
+	/// <summary>
+	/// Enables the enemy to start moving
+	/// </summary>
+	/// <param name="t_move"></param>
 	void enableMovement(bool t_move) { m_isAbleToMove = t_move; }
+	/// <summary>
+	/// Returns the enemies id
+	/// </summary>
+	/// <returns></returns>
 	int getID();
 private:
 	bool m_once = false;

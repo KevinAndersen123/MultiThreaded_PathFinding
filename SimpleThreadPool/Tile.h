@@ -116,6 +116,9 @@ public:
 	/// <returns>The position of the map tile/returns>
 	sf::Vector2f getPosition();
 
+	void setIsOccupied(bool t_isOccupied);
+
+	bool getIsOccupied();
 	/// <summary>
 	///	Getter method for the list of arcs that start at this tile.
 	/// </summary>
@@ -136,7 +139,7 @@ private:
 	sf::Vector2f m_position;			//The position of the tile in the world.
 	float m_costMultiplier = 1;			//The multiplier that is applied to thebasic weight of the arc.
 	float m_heuristicCost{ 0 };				//The predicted cost from this tile.
-
+	bool m_isOccupied{ false };
 	//List of arcs the the map tile has.
 	std::list<MapArc> m_arcList;
 

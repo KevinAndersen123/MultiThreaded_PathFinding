@@ -12,9 +12,7 @@ private:
 
 	//The cost to travel to the tile that the arc is pointing to.
 	float m_weight;
-
 public:
-
 	/// <summary>
 	/// Getter method for the map tile that the arc points to.
 	/// </summary>

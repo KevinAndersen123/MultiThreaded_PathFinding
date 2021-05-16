@@ -15,6 +15,20 @@ sf::Vector2f Tile::getPosition()
 	lock.unlock();
 }
 
+void Tile::setIsOccupied(bool t_isOccupied)
+{
+	std::unique_lock<std::mutex> lock(m_mutex);
+	m_isOccupied = t_isOccupied;
+	lock.unlock();
+}
+
+bool Tile::getIsOccupied()
+{
+	std::unique_lock<std::mutex> lock(m_mutex);
+	return m_isOccupied;
+	lock.unlock();
+}
+
 void Tile::setPosition(sf::Vector2f t_pos)
 {
 	m_position = t_pos;

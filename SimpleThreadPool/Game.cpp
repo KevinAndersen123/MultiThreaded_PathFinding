@@ -62,6 +62,7 @@ void Game::processEvents()
 			{
 				m_window.close();
 			}
+			//create 30x30 map, spawn the player goal and 5 enemies. Add the A* task to the threadpool for each enemy object to give it a path
 			if (event.key.code == sf::Keyboard::Num1)
 			{
 				m_map.generate30Map();
@@ -74,6 +75,7 @@ void Game::processEvents()
 					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], &m_map));
 				}
 			}
+			//create 100x100 map, spawn the player goal and 50 enemies. Add the A* task to the threadpool for each enemy object to give it a path
 			if (event.key.code == sf::Keyboard::Num2)
 			{
 				m_map.generate100Map();
@@ -87,6 +89,7 @@ void Game::processEvents()
 					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], &m_map));
 				}
 			}
+			//create 1000x1000 map, spawn the player goal and 500 enemies. Add the A* task to the threadpool for each enemy object to give it a path
 			if (event.key.code == sf::Keyboard::Num3)
 			{ 
 				m_map.generate1000Map();
@@ -96,12 +99,12 @@ void Game::processEvents()
 
 				for (int i = 0; i < 500; i++)
 				{
-					//m_enemies.push_back(new Enemy(m_map.m_grid[100][400 + i], 2.0f, m_player.getOccupiedTile(),0.5f,i));
-					//m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], m_map));
+					m_enemies.push_back(new Enemy(m_map.m_grid[100][i], 2.0f, m_player.getOccupiedTile(),0.5f,i));
+					m_threadPool.addTask(std::bind(&Map::aStar, m_enemies[i]->getCurrentTile(), m_player.getOccupiedTile(), m_enemies[i], &m_map));
 				}
 			}
 		}
-
+		//move around map
 		if (event.key.code == sf::Keyboard::W)
 		{
 			m_view.move(sf::Vector2f(0.0f, -5.0f));
@@ -142,7 +145,7 @@ void Game::update(sf::Time t_deltaTime)
 {
 	for (int i = 0; i < m_enemies.size(); i++)
 	{
-		m_enemies[i]->update(t_deltaTime);
+		m_enemies[i]->update(t_deltaTime); //update the npc's
 	}
 }
 
